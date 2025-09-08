@@ -34,6 +34,87 @@
 
 </head>
 <body>
+<!-- NavBar Section start here  -->
+<header class="sticky top-0 z-50 bg-[#15803D] text-white border-y border-[#0d5726]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!--  mobile menu  -->
+    <div class="relative h-14 flex items-center">
+      <!-- Left-logo name -->
+      <a href="#" class="font-semibold tracking-tight text-xl sm:text-2xl">
+        Green Earth
+      </a>
+
+      <!-- Mobile toggle -->
+      <input id="nav-toggle" type="checkbox" class="peer hidden md:hidden">
+      <label for="nav-toggle"
+             class="ml-auto md:hidden inline-flex flex-col justify-center items-center h-9 w-9 rounded-md border border-white/20 cursor-pointer">
+        <span class="block h-0.5 w-5 bg-white"></span>
+        <span class="block h-0.5 w-5 bg-white my-1"></span>
+        <span class="block h-0.5 w-5 bg-white"></span>
+      </label>
+
+      <!-- Center-menu -->
+      <nav class="absolute inset-x-0 mx-auto hidden md:flex justify-center gap-6 text-sm">
+        <a href="#about"   class="opacity-90 hover:opacity-100">About</a>
+        <a href="#gallery" class="opacity-90 hover:opacity-100">Gallery</a>
+        <a href="#plant"   class="opacity-90 hover:opacity-100">Plant a Tree</a>
+      </nav>
+
+      <!-- Right button) -->
+      <a href="#plant"
+         class="ml-auto hidden md:inline-block rounded-full px-4 py-2 text-sm font-medium
+                bg-[#FACC15] text-[#15803D] hover:brightness-95 active:brightness-90 transition">
+        Plant a Tree
+      </a>
+
+      <!-- Mobile menu -->
+      <div class="peer-checked:block hidden md:hidden absolute left-0 right-0 top-full bg-[#147a39] border-t border-[#0d5726]">
+        <nav class="px-4 py-3 flex flex-col gap-2 text-sm">
+          <a href="#about"   class="py-2 opacity-90 hover:opacity-100">About</a>
+          <a href="#gallery" class="py-2 opacity-90 hover:opacity-100">Gallery</a>
+          <a href="#plant"   class="py-2 opacity-90 hover:opacity-100">Plant a Tree</a>
+          <a href="#plant"
+             class="mt-2 rounded-full px-4 py-2 font-medium bg-[#ffd54d] text-[#0d5726] text-center">
+            Plant a Tree
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Section start from here -->
+<section id="hero"
+  class="relative overflow-hidden bg-[#d9f5e6] border-y border-[#0d5726]">
+  <!-- Leaves Image Sections -->
+  <img src="./assets/hero-leaf1.png" alt=""
+       class="pointer-events-none select-none absolute -bottom-2 -left-6 w-40 sm:w-60 md:w-72 lg:w-125"
+       aria-hidden="true" />
+  <img src="./assets/hero-leaf2.png" alt=""
+       class="pointer-events-none select-none absolute -bottom-2 -right-6 w-40 sm:w-60 md:w-72 lg:w-125"
+       aria-hidden="true" />
+
+  <!-- Content Section -->
+  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 text-center">
+    <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold leading-tight text-[#1f2937]">
+      Plant a Tree, Grow a Future
+    </h1>
+    <p class="mt-3 sm:mt-4 text-xs sm:text-sm md:text-base text-[#374151]/90">
+      Join our mission to plant 1 million trees and make the Earth greener for future
+      generations.
+    </p>
+    <a href="#plant"
+       class="mt-5 inline-block rounded-full bg-[#ffd54d] text-[#0d5726] px-5 py-2.5 text-sm font-semibold
+              hover:brightness-95 active:brightness-90 transition">
+      Get Involved
+    </a>
+  </div>
+</section>
+
+
+
+
+
 
 
 
