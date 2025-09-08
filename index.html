@@ -86,7 +86,7 @@
 
 <!-- Hero Section start from here -->
 <section id="hero"
-  class="relative overflow-hidden bg-[#d9f5e6] border-y border-[#0d5726]">
+  class="relative overflow-hidden bg-[#d9f5e6]">
   <!-- Leaves Image Sections -->
   <img src="./assets/hero-leaf1.png" alt=""
        class="pointer-events-none select-none absolute -bottom-2 -left-6 w-40 sm:w-60 md:w-72 lg:w-125"
@@ -198,6 +198,85 @@
     </div>
   </div>
 </section>
+
+
+<!-- Donation Form Section -->
+
+<section class="bg-[#0f6133] py-16">
+  <div class="max-w-[1500px] mx-auto px-4 sm:px-6">
+    <h2 class="text-center text-white text-2xl md:text-3xl font-bold mb-10">
+      Plant a Tree Today
+    </h2>
+
+    <!-- Card -->
+    <div class="mx-auto w-full max-w-3xl bg-[#0e5a30]/85 rounded-2xl shadow-lg ring-1 ring-black/10 p-4 sm:p-6 md:p-8">
+      <form id="donate-form" class="space-y-4" novalidate>
+        <!-- Name -->
+        <div>
+          <label for="donor-name" class="sr-only">Your Name</label>
+          <input
+            id="donor-name"
+            type="text"
+            placeholder="Your Name"
+            class="w-full rounded-lg border-0 bg-white/95 text-gray-900 placeholder-gray-500
+                   px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400
+                   shadow-inner"
+            required
+          />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="donor-email" class="sr-only">Your Email</label>
+          <input
+            id="donor-email"
+            type="email"
+            placeholder="Your Email Address"
+            class="w-full rounded-lg border-0 bg-white/95 text-gray-900 placeholder-gray-500
+                   px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400
+                   shadow-inner"
+            required
+          />
+        </div>
+
+        <!-- Number of Trees -->
+        <div>
+          <label for="trees" class="sr-only">Number of Trees</label>
+          <select
+            id="trees"
+            class="w-full rounded-lg border-0 bg-white/95 text-gray-900
+                   px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400
+                   shadow-inner"
+          >
+            <option>1 Tree</option>
+            <option>5 Trees</option>
+            <option>10 Trees</option>
+            <option>100 Trees</option>
+            <option>250 Trees</option>
+            <option>500 Trees</option>
+          </select>
+        </div>
+
+        <!-- Button -->
+        <button
+          type="submit"
+          class="w-full rounded-full bg-amber-400 text-[#0f572b] font-semibold py-3
+                 shadow-md hover:brightness-105 active:brightness-95
+                 focus:outline-none focus:ring-2 focus:ring-amber-300 transition"
+        >
+          Donate Now
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-[#0d4c2a] py-4">
+  <p class="text-center text-white text-sm">
+    © 2025 Green Earth. All Rights Reserved.
+  </p>
+</footer>
 
 
 
