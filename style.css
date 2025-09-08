@@ -1,3 +1,10 @@
 * {
   font-family: "Poppins", sans-serif;
 }
+
+
+ /* soft overlay for modal */
+    #quick-view::backdrop { background: rgba(0,0,0,.45); }
+    /* optional nicer scroll for cart list */
+    #cart-items::-webkit-scrollbar { height: 8px; width: 8px; }
+    #cart-items::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
