@@ -1,28 +1,30 @@
-// ====== Config & DOM ======
 const API = "https://openapi.programming-hero.com/api";
 
-const categoryList  = document.getElementById("category-list");
-const cardGrid      = document.getElementById("card-grid");
-const emptyState    = document.getElementById("empty-state");
-const spinner       = document.getElementById("spinner");
+const categoryList = document.getElementById("category-list");
+const cardGrid = document.getElementById("card-grid");
+const emptyState = document.getElementById("empty-state");
+const spinner = document.getElementById("spinner");
 
-const cartItemsEl   = document.getElementById("cart-items");
-const cartTotalEl   = document.getElementById("cart-total");
+const cartItemsEl = document.getElementById("cart-items");
+const cartTotalEl = document.getElementById("cart-total");
 
-const detailsModal  = document.getElementById("details-modal");
-const modalClose    = document.getElementById("modal-close");
-const modalImg      = document.getElementById("modal-img");
-const modalName     = document.getElementById("modal-name");
-const modalCategory = document.getElementById("modal-category");
-const modalDesc     = document.getElementById("modal-desc");
-const modalPrice    = document.getElementById("modal-price");
+// Modal
+const modal = document.getElementById("tree-modal");
+const modalImg = document.getElementById("modal-img");
+const modalName = document.getElementById("modal-name");
+const modalDesc = document.getElementById("modal-desc");
+const modalCat = document.getElementById("modal-cat");
+const modalPrice = document.getElementById("modal-price");
+const modalClose = document.getElementById("modal-close");
 
-// ====== Helpers (style similar to your sample) ======
-const createElements = (arr) =>
-  arr.map((el) => `<span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">${el}</span>`).join(" ");
+let categories = [];
+let allPlants = [];
+let cart = [];
 
-const manageSpinner = (status) => {
-  if (status) {
+const money = (n) => `৳ ${Number(n || 0).toLocaleString("en-IN")}`;
+
+const showSpinner = (on) => {
+  if (on) {
     spinner.classList.remove("hidden");
     cardGrid.classList.add("hidden");
     emptyState.classList.add("hidden");
@@ -32,167 +34,195 @@ const manageSpinner = (status) => {
   }
 };
 
-const removeActive = () => {
-  document.querySelectorAll(".cat-btn")
-    .forEach((b) => b.classList.remove("bg-emerald-700", "text-white"));
+const setActive = (btn) => {
+  document.querySelectorAll(".cat-btn").forEach((b) =>
+    b.classList.remove("bg-emerald-700", "text-white")
+  );
+  btn.classList.add("bg-emerald-700", "text-white");
 };
 
-const formatPrice = (n) => `৳${Number(n || 0)}`;
-
-// ====== Cart ======
-let cart = [];
-function renderCart() {
-  cartItemsEl.innerHTML = "";
-  let total = 0;
-
-  cart.forEach((item, idx) => {
-    total += Number(item.price || 0);
-    const li = document.createElement("li");
-    li.className = "flex items-center justify-between gap-2";
-    li.innerHTML = `
-      <span>${item.name} <span class="text-gray-500">×1</span></span>
-      <span class="flex items-center gap-3">
-        <span class="font-medium">${formatPrice(item.price)}</span>
-        <button data-index="${idx}" class="text-red-600 text-xs">❌</button>
-      </span>
-    `;
-    li.querySelector("button").addEventListener("click", (e) => {
-      const i = Number(e.currentTarget.dataset.index);
-      cart.splice(i, 1);
-      renderCart();
-    });
-    cartItemsEl.appendChild(li);
-  });
-
-  cartTotalEl.textContent = formatPrice(total);
+// Load categories
+async function loadCategories() {
+  try {
+    const res = await fetch(`${API}/categories`);
+    const json = await res.json();
+    categories = json.categories || [];
+  } catch {
+    categories = [
+      { id: 1, category_name: "Fruit Tree" },
+      { id: 2, category_name: "Flowering Tree" },
+      { id: 3, category_name: "Shade Tree" },
+    ];
+  }
+  renderCategories();
 }
 
-// ====== API Loaders ======
-const loadCategories = () => {
-  fetch(`${API}/categories`)
-    .then((res) => res.json())
-    .then((json) => displayCategories(json.categories || []));
-};
+// Load all plants
+async function loadAllPlants() {
+  showSpinner(true);
+  try {
+    const res = await fetch(`${API}/plants`);
+    const json = await res.json();
+    allPlants = json.plants || [];
+  } catch {
+    allPlants = [
+      {
+        id: 1,
+        name: "Mango Tree",
+        image: "https://i.ibb.co.com/cSQdg7tf/mango-min.jpg",
+        description:
+          "A fast-growing tropical tree that produces delicious, juicy mangoes.",
+        category: "Fruit Tree",
+        price: 500,
+      },
+      {
+        id: 2,
+        name: "Guava Tree",
+        image: "https://i.ibb.co.com/WNbbx3rn/guava-min.jpg",
+        description: "A hardy fruit tree that grows in various climates.",
+        category: "Fruit Tree",
+        price: 350,
+      },
+    ];
+  }
+  renderCards(allPlants);
+  showSpinner(false);
+}
 
-const loadAllPlants = () => {
-  manageSpinner(true);
-  fetch(`${API}/plants`)
-    .then((res) => res.json())
-    .then((json) => displayPlants(json.plants || []))
-    .finally(() => manageSpinner(false));
-};
+// Load plants by category
+async function loadPlantsByCategory(id) {
+  showSpinner(true);
+  try {
+    const res = await fetch(`${API}/category/${id}`);
+    const json = await res.json();
+    renderCards(json.plants || []);
+  } catch {
+    const catName =
+      (categories.find((c) => String(c.id) === String(id)) || {})
+        .category_name || "";
+    renderCards(allPlants.filter((p) => p.category === catName));
+  } finally {
+    showSpinner(false);
+  }
+}
 
-const loadPlantsByCategory = (id) => {
-  manageSpinner(true);
-  fetch(`${API}/category/${id}`)
-    .then((res) => res.json())
-    .then((json) => displayPlants(json.data || []))
-    .finally(() => manageSpinner(false));
-};
-
-const loadPlantDetail = (id) => {
-  fetch(`${API}/plant/${id}`)
-    .then((res) => res.json())
-    .then((details) => displayPlantDetail(details.plant || details.data || {}));
-};
-
-// ====== UI Renderers ======
-const displayCategories = (cats) => {
+// Render categories
+function renderCategories() {
   categoryList.innerHTML = "";
+  const base =
+    "cat-btn px-3 py-2 rounded-md hover:bg-emerald-100 text-left transition";
 
-  // "All Trees" button
   const allBtn = document.createElement("button");
-  allBtn.className =
-    "cat-btn px-3 py-1 rounded text-left hover:bg-emerald-100 bg-emerald-700 text-white";
+  allBtn.className = base + " bg-emerald-700 text-white";
   allBtn.textContent = "All Trees";
   allBtn.onclick = () => {
-    removeActive();
-    allBtn.classList.add("bg-emerald-700", "text-white");
-    loadAllPlants();
+    setActive(allBtn);
+    renderCards(allPlants);
   };
   categoryList.appendChild(allBtn);
 
-  // API categories
-  cats.forEach((c) => {
-    const btn = document.createElement("button");
-    btn.id = `cat-btn-${c.id}`;
-    btn.className = "cat-btn px-3 py-1 rounded text-left hover:bg-emerald-100";
-    btn.textContent = c.category;
-    btn.onclick = () => {
-      removeActive();
-      btn.classList.add("bg-emerald-700", "text-white");
+  categories.forEach((c) => {
+    const b = document.createElement("button");
+    b.className = base;
+    b.textContent = c.category_name;
+    b.onclick = () => {
+      setActive(b);
       loadPlantsByCategory(c.id);
     };
-    categoryList.appendChild(btn);
+    categoryList.appendChild(b);
   });
-};
+}
 
-const displayPlants = (plants) => {
+// Render cards
+function renderCards(list) {
   cardGrid.innerHTML = "";
-  if (!plants.length) {
+  if (!list.length) {
     emptyState.classList.remove("hidden");
     return;
   }
   emptyState.classList.add("hidden");
 
-  plants.forEach((p) => {
-    // Normalize
-    const id    = p.id || p.plant_id || p.plantId;
-    const name  = p.name || p.title || "Tree";
-    const img   = p.image || p.img || "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1200&auto=format&fit=crop";
-    const desc  = p.short_description || p.description || "";
-    const cat   = p.category || p.category_name || "General";
-    const price = Number(p.price ?? 0);
+  list.forEach((p) => {
+    const card = document.createElement("article");
+    card.className =
+      "bg-white rounded-xl shadow-md hover:shadow-lg transition p-3";
 
-    const card = document.createElement("div");
-    card.className = "bg-white rounded-xl shadow overflow-hidden flex flex-col";
     card.innerHTML = `
-      <div class="w-full h-40 bg-gray-100">
-        <img src="${img}" alt="${name}" class="w-full h-40 object-cover">
+      <img src="${p.image}" alt="${p.name}"
+           class="w-full h-40 object-cover rounded-lg cursor-pointer">
+      <h4 class="font-semibold mt-3 cursor-pointer">${p.name}</h4>
+      <p class="text-sm text-gray-600 line-clamp-2">${p.description || ""}</p>
+      <div class="mt-2 flex items-center justify-between">
+        <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">${p.category}</span>
+        <span class="font-semibold">${money(p.price)}</span>
       </div>
-      <div class="p-4 flex-1 flex flex-col">
-        <a href="#" class="font-semibold hover:underline tree-name text-gray-900" data-id="${id}">${name}</a>
-        <p class="mt-1 text-sm text-gray-600 line-clamp-2">${desc}</p>
-        <div class="mt-3 flex items-center justify-between">
-          <span class="inline-flex px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs">${cat}</span>
-          <span class="font-semibold">${formatPrice(price)}</span>
-        </div>
-        <button class="mt-4 rounded-full bg-emerald-700 text-white py-2 text-sm add-btn"
-                data-id="${id}" data-name="${name}" data-price="${price}">
-          Add to Cart
-        </button>
-      </div>
+      <button class="mt-3 w-full bg-emerald-700 text-white py-2 rounded-full text-sm">Add to Cart</button>
     `;
 
-    // Events
-    card.querySelector(".tree-name").addEventListener("click", (e) => {
-      e.preventDefault();
-      loadPlantDetail(id);
-    });
+    // Modal
+    const open = () => openModal(p);
+    card.querySelector("img").addEventListener("click", open);
+    card.querySelector("h4").addEventListener("click", open);
 
-    card.querySelector(".add-btn").addEventListener("click", (e) => {
-      const { id, name, price } = e.currentTarget.dataset;
-      cart.push({ id, name, price: Number(price) });
-      renderCart();
-    });
+    // Cart
+    card.querySelector("button").addEventListener("click", () => addToCart(p));
 
     cardGrid.appendChild(card);
   });
-};
+}
 
-const displayPlantDetail = (item) => {
-  modalImg.src = item.image || item.img || "";
-  modalName.textContent = item.name || item.title || "Tree";
-  modalCategory.textContent = item.category ? `Category: ${item.category}` : "";
-  modalDesc.innerHTML = item.description || item.long_description || "—";
-  modalPrice.textContent = item.price != null ? formatPrice(item.price) : "";
-  detailsModal.showModal();
-};
+// Cart
+function addToCart(p) {
+  const found = cart.find((i) => i.id === p.id);
+  if (found) found.qty += 1;
+  else cart.push({ ...p, qty: 1 });
+  renderCart();
+}
 
-// Close modal
-modalClose.addEventListener("click", () => detailsModal.close());
+function removeFromCart(i) {
+  cart.splice(i, 1);
+  renderCart();
+}
+
+function renderCart() {
+  cartItemsEl.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((item, i) => {
+    total += item.price * item.qty;
+    const li = document.createElement("li");
+    li.className = "flex items-center justify-between gap-2";
+    li.innerHTML = `
+      <span>${item.name} ×${item.qty}</span>
+      <div class="flex items-center gap-2">
+        <span>${money(item.price * item.qty)}</span>
+        <button class="text-red-500" title="Remove">✖</button>
+      </div>
+    `;
+    li.querySelector("button").onclick = () => removeFromCart(i);
+    cartItemsEl.appendChild(li);
+  });
+
+  cartTotalEl.textContent = money(total);
+}
+
+// Modal
+function openModal(p) {
+  modalImg.src = p.image;
+  modalName.textContent = p.name;
+  modalDesc.textContent = p.description;
+  modalCat.textContent = p.category;
+  modalPrice.textContent = money(p.price);
+  modal.showModal();
+}
+modalClose.addEventListener("click", () => modal.close());
 
 // Init
 loadCategories();
 loadAllPlants();
 renderCart();
+
+
+
+
+

@@ -110,9 +110,65 @@
       Get Involved
     </a>
   </div>
-</section>
+</section >
 
-  <!-- Tree Cart section start here -->
+<!-- Tree Cart section start here -->
+<!-- Section -->
+<section class="bg-[#e9f9f0] text-gray-800">
+
+  <!-- Title -->
+  <section class="py-10">
+    <h2 class="text-2xl md:text-3xl font-bold text-center">Choose Your Trees</h2>
+  </section>
+
+  <!-- 12-col Grid -->
+  <section class="max-w-[1650px] grid grid-cols-1 lg:grid-cols-12 gap-6 mx-auto p-6">
+
+    <!-- LEFT: Categories -->
+    <aside class="lg:col-span-2 bg-white rounded-xl shadow p-4 h-fit lg:sticky lg:top-6">
+      <h3 class="font-semibold mb-3">Categories</h3>
+      <div id="category-list" class="flex flex-col gap-2 text-sm"></div>
+    </aside>
+
+    <!-- CENTER: Cards -->
+    <div class="lg:col-span-8">
+      <!-- Spinner -->
+      <div id="spinner" class="hidden flex justify-center items-center py-10">
+        <div class="h-8 w-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="card-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+      <!-- Empty -->
+      <div id="empty-state" class="hidden text-center py-10">
+        <p class="text-gray-600">No trees found for this category.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT: Cart -->
+    <aside class="lg:col-span-2 bg-white rounded-xl shadow p-4 h-fit lg:sticky lg:top-6">
+      <h3 class="font-semibold mb-4">Cart</h3>
+      <ul id="cart-items" class="space-y-2 text-sm"></ul>
+      <div class="mt-3 border-t pt-2 flex justify-between font-semibold">
+        <span>Total:</span>
+        <span id="cart-total">৳ 0</span>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Modal -->
+  <dialog id="tree-modal" class="rounded-xl max-w-lg w-[92%] p-0 overflow-hidden">
+    <div class="p-5 bg-white">
+      <img id="modal-img" class="w-full h-60 object-cover rounded-lg mb-4" src="" alt="" />
+      <h2 id="modal-name" class="text-xl font-bold mb-2"></h2>
+      <p id="modal-desc" class="text-gray-600 mb-3"></p>
+      <p class="text-sm text-green-700 mb-1">Category: <span id="modal-cat"></span></p>
+      <p class="font-semibold">Price: <span id="modal-price"></span></p>
+      <button id="modal-close" class="mt-4 px-4 py-2 rounded bg-emerald-600 text-white">Close</button>
+    </div>
+  </dialog>
+</section>
 
 
 
@@ -121,28 +177,31 @@
   <div class="max-w-[1500px] mx-auto px-4 sm:px-6">
     <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center">About the Campaign</h2>
 
-    <!-- layout -->
     <div class="grid gap-10 lg:grid-cols-2 items-center">
-      <!-- Left Image  -->
-      <div class="order-1">
-        <figure class="bg-white rounded-3xl shadow-md ring-1 ring-black/5 p-3">
-          <img
-            src="./assets/about.png"
-            alt="Young green plant as a symbol of reforestation"
-            class="w-full h-[460px] md:h-[520px] object-cover rounded-2xl"
-          />
-        </figure>
-      </div>
+      <!-- Image -->
+      <figure
+        class="group bg-white rounded-3xl shadow-md ring-1 ring-black/5 p-3
+               transition-all duration-300 ease-out
+               hover:-translate-y-1 hover:shadow-xl hover:ring-emerald-200
+               motion-reduce:transition-none motion-reduce:transform-none">
+        <img
+          src="./assets/about.png"
+          alt=""
+          class="w-full h-[460px] md:h-[520px] bg-[#F7F7F7] object-cover rounded-2xl
+                 transition-transform duration-300 ease-out
+                 group-hover:scale-[1.03] group-hover:brightness-105
+                 [will-change:transform]"
+        />
+      </figure>
 
-      <!-- Right Text -->
-      <div class="order-2">
+      <!-- Text -->
+      <div>
         <p class="text-[15px] md:text-base leading-7 text-gray-700 mb-4">
           <strong>Green Earth</strong> is a global tree plantation initiative dedicated to fighting
           climate change. Since our start, we’ve planted over <strong>500,000 trees</strong> worldwide.
           By joining our campaign, you help restore forests, create habitats for wildlife, and
           combat global warming.
         </p>
-
         <ul class="list-disc pl-6 space-y-2 text-[15px] md:text-base text-gray-800">
           <li>Restoration of natural habitats</li>
           <li>Improvement of air quality</li>
@@ -152,6 +211,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- Our Impact Section -->
 
@@ -199,9 +259,9 @@
   </div>
 </section>
 
+<!-- Plant Form Section -->
 
-<!-- Donation Form Section -->
-
+<!-- ========== Plant a Tree Today ========== -->
 <section class="bg-[#0f6133] py-16">
   <div class="max-w-[1500px] mx-auto px-4 sm:px-6">
     <h2 class="text-center text-white text-2xl md:text-3xl font-bold mb-10">
@@ -209,66 +269,104 @@
     </h2>
 
     <!-- Card -->
-    <div class="mx-auto w-full max-w-3xl bg-[#0e5a30]/85 rounded-2xl shadow-lg ring-1 ring-black/10 p-4 sm:p-6 md:p-8">
-      <form id="donate-form" class="space-y-4" novalidate>
+    <div
+      class="mx-auto w-full max-w-xl bg-[#0e5a30]/90 rounded-2xl shadow-lg ring-1 ring-black/10
+             p-4 sm:p-6 md:p-8 transition-all duration-300 hover:shadow-xl"
+    >
+      <form id="donate-form" class="space-y-3" novalidate>
         <!-- Name -->
-        <div>
-          <label for="donor-name" class="sr-only">Your Name</label>
-          <input
-            id="donor-name"
-            type="text"
-            placeholder="Your Name"
-            class="w-full rounded-lg border-0 bg-white/95 text-gray-900 placeholder-gray-500
-                   px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400
-                   shadow-inner"
-            required
-          />
-        </div>
+        <input id="name" type="text" placeholder="Your Name"
+          class="w-full rounded-md border-0 bg-white text-gray-900 placeholder-gray-500
+                 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner"
+          required />
 
         <!-- Email -->
-        <div>
-          <label for="donor-email" class="sr-only">Your Email</label>
-          <input
-            id="donor-email"
-            type="email"
-            placeholder="Your Email Address"
-            class="w-full rounded-lg border-0 bg-white/95 text-gray-900 placeholder-gray-500
-                   px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400
-                   shadow-inner"
-            required
-          />
-        </div>
+        <input id="email" type="email" placeholder="Your Email Address"
+          class="w-full rounded-md border-0 bg-white text-gray-900 placeholder-gray-500
+                 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner"
+          required />
 
         <!-- Number of Trees -->
-        <div>
-          <label for="trees" class="sr-only">Number of Trees</label>
-          <select
-            id="trees"
-            class="w-full rounded-lg border-0 bg-white/95 text-gray-900
-                   px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400
-                   shadow-inner"
-          >
-            <option>1 Tree</option>
-            <option>5 Trees</option>
-            <option>10 Trees</option>
-            <option>100 Trees</option>
-            <option>250 Trees</option>
-            <option>500 Trees</option>
-          </select>
-        </div>
+        <select id="trees"
+          class="w-full rounded-md border-0 bg-white text-gray-900 px-4 py-2.5
+                 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner"
+          required>
+          <option value="" disabled selected>Number of Trees</option>
+          <option>1 Tree</option>
+          <option>5 Trees</option>
+          <option>10 Trees</option>
+          <option>100 Trees</option>
+          <option>250 Trees</option>
+          <option>500 Trees</option>
+        </select>
 
-        <!-- Button -->
-        <button
-          type="submit"
-          class="w-full rounded-full bg-amber-400 text-[#0f572b] font-semibold py-3
+        <!-- CTA -->
+        <button id="donate-submit" type="button"
+          class="w-full rounded-full bg-amber-400 text-[#0f572b] font-semibold py-2.5
                  shadow-md hover:brightness-105 active:brightness-95
-                 focus:outline-none focus:ring-2 focus:ring-amber-300 transition"
-        >
+                 focus:outline-none focus:ring-2 focus:ring-amber-300 transition">
           Donate Now
         </button>
       </form>
     </div>
   </div>
+</section>
+
+<!-- Modal -->
+<dialog id="thankyou-modal" class="modal">
+  <div class="modal-box rounded-2xl">
+    <h3 class="text-lg md:text-xl font-bold text-center">
+      Thank You so much ...!!! <br>❤️
+    </h3>
+    <p class="py-4 text-center text-sm md:text-base text-gray-600">
+      Your tree pledge has been received.
+    </p>
+    <div class="modal-action flex justify-center">
+      <form method="dialog">
+        <button class="btn bg-emerald-600 text-white rounded-full px-6 hover:bg-emerald-700">
+          Close
+        </button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  (function () {
+    const form  = document.getElementById('donate-form');
+    const btn   = document.getElementById('donate-submit');
+    const name  = document.getElementById('name');
+    const email = document.getElementById('email');
+    const trees = document.getElementById('trees');
+    const modal = document.getElementById('thankyou-modal');
+
+    const okEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    btn.addEventListener('click', () => {
+      const n = name.value.trim();
+      const e = email.value.trim();
+      const t = trees.value;
+
+      if (!n || !e || !t) {
+        alert('Please complete all fields.');
+        return;
+      }
+      if (!okEmail(e)) {
+        alert('Please enter a valid email address.');
+        email.focus();
+        return;
+      }
+
+      // open modal instead of alert
+      modal.showModal();
+      form.reset();
+    });
+
+    // Block any default submit (Enter key)
+    form.addEventListener('submit', (e) => e.preventDefault());
+  })();
+</script>
+
 </section>
 
 <!-- Footer -->
