@@ -1,7 +1,7 @@
-
+//  API LInk 
 const API = "https://openapi.programming-hero.com/api";
 
-// DOM
+//  DOM Elements 
 const categoryList = document.getElementById("category-list");
 const cardGrid     = document.getElementById("card-grid");
 const emptyState   = document.getElementById("empty-state");
@@ -10,53 +10,60 @@ const spinner      = document.getElementById("spinner");
 const cartItemsEl  = document.getElementById("cart-items");
 const cartTotalEl  = document.getElementById("cart-total");
 
-// Modal
-const modal     = document.getElementById("tree-modal");
-const modalImg  = document.getElementById("modal-img");
-const modalName = document.getElementById("modal-name");
-const modalDesc = document.getElementById("modal-desc");
-const modalCat  = document.getElementById("modal-cat");
-const modalPrice= document.getElementById("modal-price");
-const modalClose= document.getElementById("modal-close");
+// Modal elements
+const modal      = document.getElementById("tree-modal");
+const modalImg   = document.getElementById("modal-img");
+const modalName  = document.getElementById("modal-name");
+const modalDesc  = document.getElementById("modal-desc");
+const modalCat   = document.getElementById("modal-cat");
+const modalPrice = document.getElementById("modal-price");
+const modalClose = document.getElementById("modal-close");
 
-// State
+//  State  element
 let categories = [];
 let categoryById = new Map();
 let allPlants  = [];
-let cart       = []; 
+let cart       = [];
 
-// Elements
+// Utility Functions 
+
+// Format price to BDT
 const taka = new Intl.NumberFormat("en-IN", { style: "currency", currency: "BDT", maximumFractionDigits: 0 });
-const money = (n) => taka.format(Number(n || 0)).replace("BDT", "৳").trim();
+const money = n => taka.format(Number(n || 0)).replace("BDT", "৳").trim();
 
-const spin = (on) => {
+// Show/hide spinner
+const spin = on => {
   spinner.classList.toggle("hidden", !on);
   cardGrid.classList.toggle("hidden", on);
   if (on) emptyState.classList.add("hidden");
 };
 
-const setActive = (btn) => {
-  document.querySelectorAll(".cat-btn").forEach((el) => {
+// Highlight selected category button
+const setActive = btn => {
+  document.querySelectorAll(".cat-btn").forEach(el => {
     el.classList.remove("bg-emerald-700","text-white","ring-2","ring-emerald-300");
   });
   btn.classList.add("bg-emerald-700","text-white","ring-2","ring-emerald-300");
 };
 
-const toast = (msg) => alert(msg); // keep simple; can swap to a custom toast later
+// Simple alert
+const toast = msg => alert(msg);
 
-// Data
+//  Data Fetching 
 async function fetchJSON(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Network ${res.status}`);
   return res.json();
 }
 
+// Fetch categories
 async function fetchCategories() {
   try {
     const { categories: cats = [] } = await fetchJSON(`${API}/categories`);
     categories = cats;
   } catch (err) {
     console.warn("⚠️ Category fallback", err);
+    // fallback categories
     categories = [
       { id: 1, category_name: "Fruit Tree" },
       { id: 2, category_name: "Flowering Tree" },
@@ -64,9 +71,10 @@ async function fetchCategories() {
     ];
   }
   categoryById = new Map(categories.map(c => [String(c.id), c.category_name]));
-  paintCategories();
+  renderCategories();
 }
 
+// Fetch all plants
 async function fetchAllPlants() {
   spin(true);
   try {
@@ -74,109 +82,94 @@ async function fetchAllPlants() {
     allPlants = plants;
   } catch (err) {
     console.warn("⚠️ Plants fallback", err);
+    // fallback plants
     allPlants = [
-      {
-        id: 1,
-        name: "Mango Tree",
-        image: "https://i.ibb.co.com/cSQdg7tf/mango-min.jpg",
-        description: "Fast-growing, sweet summer fruit and lovely shade.",
-        category: "Fruit Tree",
-        price: 500,
-      },
-      {
-        id: 2,
-        name: "Guava Tree",
-        image: "https://i.ibb.co.com/WNbbx3rn/guava-min.jpg",
-        description: "Hardy and generous with vitamin-rich fruit.",
-        category: "Fruit Tree",
-        price: 350,
-      },
+      { id: 1, name: "Mango Tree", image: "https://i.ibb.co/cSQdg7tf/mango-min.jpg", description: "Fast-growing, sweet summer fruit and lovely shade.", category: "Fruit Tree", price: 500 },
+      { id: 2, name: "Guava Tree", image: "https://i.ibb.co/WNbbx3rn/guava-min.jpg", description: "Hardy and generous with vitamin-rich fruit.", category: "Fruit Tree", price: 350 },
     ];
   } finally {
-    paintCards(allPlants);
+    renderCards(allPlants);
     spin(false);
   }
 }
 
+// fetch plants by category
 async function fetchPlantsByCategory(id) {
   spin(true);
   try {
     const { plants = [], data } = await fetchJSON(`${API}/category/${id}`);
-    // Some endpoints use data vs plants
-    paintCards(plants.length ? plants : (data || []));
+    renderCards(plants.length ? plants : (data || []));
   } catch (err) {
-    // Fallback: filter local
     const name = categoryById.get(String(id)) || "";
-    paintCards(allPlants.filter(p => p.category === name));
+    renderCards(allPlants.filter(p => p.category === name));
   } finally {
     spin(false);
   }
 }
 
-// UI — categories
-function paintCategories() {
+//UI Rendering 
+
+// Render categories
+function renderCategories() {
   categoryList.innerHTML = "";
 
-  const base = "cat-btn px-3 py-2 rounded-md hover:bg-emerald-100 text-left transition";
+  const baseClass = "cat-btn px-3 py-2 rounded-md hover:bg-emerald-100 text-left transition";
+
+  // All Trees button
   const allBtn = document.createElement("button");
-  allBtn.className = `${base} bg-emerald-700 text-white ring-2 ring-emerald-300`;
+  allBtn.className = `${baseClass} bg-emerald-700 text-white ring-2 ring-emerald-300`;
   allBtn.textContent = "All Trees";
-  allBtn.onclick = () => { setActive(allBtn); paintCards(allPlants); };
+  allBtn.onclick = () => { setActive(allBtn); renderCards(allPlants); };
   categoryList.appendChild(allBtn);
 
-  categories.forEach((c) => {
-    const b = document.createElement("button");
-    b.className = base;
-    b.textContent = c.category_name;
-    b.onclick = () => { setActive(b); fetchPlantsByCategory(c.id); };
-    categoryList.appendChild(b);
+  // Dynamic categories
+  categories.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = baseClass;
+    btn.textContent = c.category_name;
+    btn.onclick = () => { setActive(btn); fetchPlantsByCategory(c.id); };
+    categoryList.appendChild(btn);
   });
 }
 
-// UI — cards
-function paintCards(list) {
+// Render product cards
+function renderCards(list) {
   cardGrid.innerHTML = "";
 
   if (!list.length) {
     emptyState.classList.remove("hidden");
-    emptyState.textContent = "No trees here yet — try another category 🌿";
+    emptyState.textContent = "No trees here yet — try another category";
     return;
   }
   emptyState.classList.add("hidden");
 
-  list.forEach((p) => {
+  list.forEach(prod => {
     const card = document.createElement("article");
     card.className = `
       bg-white rounded-2xl shadow ring-1 ring-black/5 p-3
       hover:shadow-lg hover:ring-emerald-200 transition cursor-pointer
     `;
-
     card.innerHTML = `
-      <img src="${p.image}" alt="${p.name}"
-           class="w-full h-44 sm:h-48 object-cover rounded-xl">
-      <h4 class="font-semibold mt-3">${p.name}</h4>
-      <p class="text-sm text-gray-600 line-clamp-2">${p.description || ""}</p>
-
+      <img src="${prod.image}" alt="${prod.name}" class="w-full h-44 sm:h-48 object-cover rounded-xl">
+      <h4 class="font-semibold mt-3">${prod.name}</h4>
+      <p class="text-sm text-gray-600 line-clamp-2">${prod.description || ""}</p>
       <div class="mt-2 flex items-center justify-between">
-        <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">${p.category}</span>
-        <span class="font-semibold">${money(p.price)}</span>
+        <span class="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">${prod.category}</span>
+        <span class="font-semibold">${money(prod.price)}</span>
       </div>
-
-      <button class="mt-3 w-full bg-emerald-700 text-white py-2 rounded-full text-sm add-btn">
-        Add to Cart
-      </button>
+      <button class="mt-3 w-full bg-emerald-700 text-white py-2 rounded-full text-sm add-btn">Add to Cart</button>
     `;
 
-    // Full-card opens modal (except the add button)
-    card.addEventListener("click", (e) => {
-      if (e.target.closest(".add-btn")) return;
-      openModal(p);
+    // Open modal when card is clicked (Add button)
+    card.addEventListener("click", e => {
+      if (e.target.closest("button")) return; 
+      openModal(prod);
     });
 
-    // Add to cart with tiny feedback
+    // Add to cart
     const addBtn = card.querySelector(".add-btn");
     addBtn.addEventListener("click", () => {
-      addToCart(p);
+      addToCart(prod);
       const old = addBtn.textContent;
       addBtn.textContent = "Added";
       addBtn.disabled = true;
@@ -191,19 +184,19 @@ function paintCards(list) {
 }
 
 // Cart
-function addToCart(p) {
-  const hit = cart.find((i) => i.id === p.id);
+function addToCart(prod) {
+  const hit = cart.find(i => i.id === prod.id);
   if (hit) hit.qty += 1;
-  else cart.push({ id: p.id, name: p.name, price: Number(p.price || 0), qty: 1 });
-  paintCart();
+  else cart.push({ id: prod.id, name: prod.name, price: Number(prod.price || 0), qty: 1 });
+  renderCart();
 }
 
 function removeFromCart(i) {
   cart.splice(i, 1);
-  paintCart();
+  renderCart();
 }
 
-function paintCart() {
+function renderCart() {
   cartItemsEl.innerHTML = "";
   let total = 0;
 
@@ -226,14 +219,15 @@ function paintCart() {
 }
 
 // Modal
-function openModal(p) {
-  modalImg.src        = p.image || "";
-  modalName.textContent = p.name || "Tree";
-  modalDesc.textContent = p.description || "—";
-  modalCat.textContent  = p.category || "—";
-  modalPrice.textContent= money(p.price || 0);
+function openModal(prod) {
+  modalImg.src = prod.image || "";
+  modalName.textContent = prod.name || "Tree";
+  modalDesc.textContent = prod.description || "No description available.";
+  modalCat.textContent = prod.category || "—";
+  modalPrice.textContent = money(prod.price || 0);
   modal.showModal();
 }
+
 modalClose.addEventListener("click", () => modal.close());
 
 // Boot
@@ -241,9 +235,9 @@ modalClose.addEventListener("click", () => modal.close());
   try {
     await fetchCategories();
     await fetchAllPlants();
-    paintCart();
+    renderCart();
   } catch (err) {
-    console.error(" Boot error:", err);
-    toast("Couldn’t load plants right now. Please try again in a moment.");
+    console.error("Boot error:", err);
+    toast("Couldn’t load plants right now. Please try again later.");
   }
 })();
