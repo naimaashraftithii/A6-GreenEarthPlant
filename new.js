@@ -1,7 +1,7 @@
-//  API LInk 
+//API Endpoint
 const API = "https://openapi.programming-hero.com/api";
 
-//  DOM Elements 
+//DOM Elements
 const categoryList = document.getElementById("category-list");
 const cardGrid     = document.getElementById("card-grid");
 const emptyState   = document.getElementById("empty-state");
@@ -9,8 +9,9 @@ const spinner      = document.getElementById("spinner");
 
 const cartItemsEl  = document.getElementById("cart-items");
 const cartTotalEl  = document.getElementById("cart-total");
+ 
 
-// Modal elements
+//Modal Elements
 const modal      = document.getElementById("tree-modal");
 const modalImg   = document.getElementById("modal-img");
 const modalName  = document.getElementById("modal-name");
@@ -19,26 +20,32 @@ const modalCat   = document.getElementById("modal-cat");
 const modalPrice = document.getElementById("modal-price");
 const modalClose = document.getElementById("modal-close");
 
-//  State  element
-let categories = [];
+// State
+let categories   = [];
 let categoryById = new Map();
-let allPlants  = [];
-let cart       = [];
+let allPlants    = [];
+let cart         = [];
 
-// Utility Functions 
+//Utility Functions
 
-// Format price to BDT
+
+// Format price → ৳
 const taka = new Intl.NumberFormat("en-IN", { style: "currency", currency: "BDT", maximumFractionDigits: 0 });
 const money = n => taka.format(Number(n || 0)).replace("BDT", "৳").trim();
 
-// Show/hide spinner
+// Spinner & empty state
 const spin = on => {
   spinner.classList.toggle("hidden", !on);
   cardGrid.classList.toggle("hidden", on);
-  if (on) emptyState.classList.add("hidden");
+  if (on) {
+    emptyState.classList.remove("hidden");
+    emptyState.textContent = "Loading trees... please wait....!!";
+  } else {
+    emptyState.classList.add("hidden");
+  }
 };
 
-// Highlight selected category button
+//active category
 const setActive = btn => {
   document.querySelectorAll(".cat-btn").forEach(el => {
     el.classList.remove("bg-emerald-700","text-white","ring-2","ring-emerald-300");
@@ -46,24 +53,23 @@ const setActive = btn => {
   btn.classList.add("bg-emerald-700","text-white","ring-2","ring-emerald-300");
 };
 
-// Simple alert
+// Toast (basic alert for now)
 const toast = msg => alert(msg);
 
-//  Data Fetching 
+// Fetch JSON with error handling
 async function fetchJSON(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Network ${res.status}`);
   return res.json();
 }
 
-// Fetch categories
+// Fetch Categories
 async function fetchCategories() {
   try {
     const { categories: cats = [] } = await fetchJSON(`${API}/categories`);
     categories = cats;
   } catch (err) {
     console.warn("⚠️ Category fallback", err);
-    // fallback categories
     categories = [
       { id: 1, category_name: "Fruit Tree" },
       { id: 2, category_name: "Flowering Tree" },
@@ -74,26 +80,22 @@ async function fetchCategories() {
   renderCategories();
 }
 
-// Fetch all plants
+//Fetch All Plants
 async function fetchAllPlants() {
-  spin(true);
   try {
     const { plants = [] } = await fetchJSON(`${API}/plants`);
     allPlants = plants;
   } catch (err) {
     console.warn("⚠️ Plants fallback", err);
-    // fallback plants
     allPlants = [
       { id: 1, name: "Mango Tree", image: "https://i.ibb.co/cSQdg7tf/mango-min.jpg", description: "Fast-growing, sweet summer fruit and lovely shade.", category: "Fruit Tree", price: 500 },
       { id: 2, name: "Guava Tree", image: "https://i.ibb.co/WNbbx3rn/guava-min.jpg", description: "Hardy and generous with vitamin-rich fruit.", category: "Fruit Tree", price: 350 },
     ];
-  } finally {
-    renderCards(allPlants);
-    spin(false);
   }
+  renderCards(allPlants);
 }
 
-// fetch plants by category
+// Fetch Plants
 async function fetchPlantsByCategory(id) {
   spin(true);
   try {
@@ -107,9 +109,7 @@ async function fetchPlantsByCategory(id) {
   }
 }
 
-//UI Rendering 
-
-// Render categories
+// Render Categories
 function renderCategories() {
   categoryList.innerHTML = "";
 
@@ -132,13 +132,13 @@ function renderCategories() {
   });
 }
 
-// Render product cards
+// Render Cards
 function renderCards(list) {
   cardGrid.innerHTML = "";
 
   if (!list.length) {
     emptyState.classList.remove("hidden");
-    emptyState.textContent = "No trees here yet — try another category";
+    emptyState.textContent = "No trees found in this category.";
     return;
   }
   emptyState.classList.add("hidden");
@@ -160,7 +160,7 @@ function renderCards(list) {
       <button class="mt-3 w-full bg-emerald-700 text-white py-2 rounded-full text-sm add-btn">Add to Cart</button>
     `;
 
-    // Open modal when card is clicked (Add button)
+    // Open modal (clicking button)
     card.addEventListener("click", e => {
       if (e.target.closest("button")) return; 
       openModal(prod);
@@ -171,19 +171,19 @@ function renderCards(list) {
     addBtn.addEventListener("click", () => {
       addToCart(prod);
       const old = addBtn.textContent;
-      addBtn.textContent = "Added";
+      addBtn.textContent = " Add to cart!";
       addBtn.disabled = true;
       setTimeout(() => {
         addBtn.textContent = old;
         addBtn.disabled = false;
-      }, 900);
+      }, 1000);
     });
 
     cardGrid.appendChild(card);
   });
 }
 
-// Cart
+// Cart Functions
 function addToCart(prod) {
   const hit = cart.find(i => i.id === prod.id);
   if (hit) hit.qty += 1;
@@ -199,6 +199,10 @@ function removeFromCart(i) {
 function renderCart() {
   cartItemsEl.innerHTML = "";
   let total = 0;
+
+  if (!cart.length) {
+    cartItemsEl.innerHTML = `<li class="text-gray-500 italic">🛒 Your cart is empty</li>`;
+  }
 
   cart.forEach((item, i) => {
     total += item.price * item.qty;
@@ -218,26 +222,31 @@ function renderCart() {
   cartTotalEl.textContent = money(total);
 }
 
+
+
+
 // Modal
 function openModal(prod) {
-  modalImg.src = prod.image || "";
+   modalImg.src = prod.image || "";
   modalName.textContent = prod.name || "Tree";
-  modalDesc.textContent = prod.description || "No description available.";
+   modalDesc.textContent = prod.description || "No description available.";
   modalCat.textContent = prod.category || "—";
-  modalPrice.textContent = money(prod.price || 0);
+   modalPrice.textContent = money(prod.price || 0);
   modal.showModal();
 }
-
 modalClose.addEventListener("click", () => modal.close());
 
 // Boot
 (async function boot() {
   try {
-    await fetchCategories();
-    await fetchAllPlants();
+    spin(true); // start with spinner
+    await Promise.all([fetchCategories(), fetchAllPlants()]);
     renderCart();
   } catch (err) {
     console.error("Boot error:", err);
-    toast("Couldn’t load plants right now. Please try again later.");
+    emptyState.classList.remove("hidden");
+    emptyState.textContent = "⚠️ Couldn’t load trees. Please try again later.";
+  } finally {
+    spin(false);
   }
 })();
